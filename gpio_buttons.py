@@ -22,8 +22,9 @@ class buttons:
 
 	def addEventSelect(self, callback=None):
 		if callback == None:
-			callback = self.SelectButtonCallback
-		GPIO.add_event_detect(SELECT, GPIO.BOTH, callback=callback, bouncetime=100)
+			GPIO.add_event_detect(SELECT, GPIO.BOTH, callback=self.SelectButtonCallback, bouncetime=100)
+		else:
+			GPIO.add_event_detect(SELECT, GPIO.FALLING, callback=callback, bouncetime=100)
 
 	def addEventConfirm(self):
 		GPIO.add_event_detect(CONFIRM, GPIO.BOTH, callback=self.ConfirmButtonCallback, bouncetime=100)
