@@ -89,6 +89,6 @@ class buttons:
 		self.addEventSelect()
 
 	def waitConfirmButton(self):
-		self.removeEventConfirm()
+		#self.removeEventConfirm()
 		GPIO.wait_for_edge(CONFIRM, GPIO.FALLING)
-		self.addEventConfirm()
+		#self.addEventConfirm()

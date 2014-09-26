@@ -4,7 +4,7 @@ import main
 import math
 import time
 import types
-from threading import Thread
+import threading
 
 #MENU_CHARS = [[0x1F, 0x1A, 0x15, 0x1A, 0x15, 0x1A, 0x15, 0x1F],
 #				[0x1F, 0x15, 0x0A, 0x15, 0x0A, 0x15, 0x0A, 0x1F],
@@ -52,6 +52,7 @@ def rotateString(string, count):
 
 class menu:
 	selectedElement = 0
+	selectLock = threading.Lock()
 
 	def menuSelectCallback(self, pin):
 		main.buttons.removeEventSelect()
@@ -59,12 +60,16 @@ class menu:
 			self.selectedElement = (self.selectedElement + 1) % len(self.menulist)
 			nexti = getMenuOffset(self.menulist, self.selectedElement) % len(self.menustring)
 
+			# acquire locks to keep LCD intact
+			self.selectLock.acquire()
 			while(self.i != nexti):
 				self.i = (self.i + 1) % len(self.menustring)
 				main.lcd_device.puts(rotateString(self.menustring, self.i)[:main.lcd_device.width], 1)
+			self.selectLock.release()
 
 			if not main.buttons.GetSelectButton():
 				time.sleep(0.3)
+		selectIsRunning = False
 		main.buttons.addEventSelect(self.menuSelectCallback)
 
 	def __init__(self):
@@ -88,5 +93,12 @@ class menu:
 
 		main.buttons.addEventSelect(self.menuSelectCallback)
 		main.buttons.waitConfirmButton()
+
+		# acquire lock and block if select callback is not yet finished, to keep LCD intact
+		self.selectLock.acquire()
+		self.selectLock.release()
+		# at this state the LCD can be used again
+
 		main.buttons.removeEventSelect()
+		main.buttons.removeEventConfirm()
 		print "Finished, yay, we selected m=%d" % self.selectedElement

@@ -54,7 +54,13 @@ class main:
 			time.sleep(60.0 - ((time.time() - starttime) % 60.0))
 
 	def __init__(self) :
-		self.setMode(MODE_MENU)
+		while(True):
+			self.setMode(MODE_MENU)
+			print "Menu has finished, now we have something to do right now..."
+			lcd_device.puts("trolololo", 0)
+			lcd_device.puts("julibidulibidu", 1)
+			time.sleep(5)
+			print "Done doing something. now back to the menu"
 
 	def setMode(self, mode):
 		self.mode = mode
