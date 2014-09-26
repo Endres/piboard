@@ -38,7 +38,10 @@ class lcd:
 	'''
 
 	# initializes objects and lcd
-	def __init__(self, addr, port):
+	def __init__(self, addr, port, width, height):
+		self.width = width
+		self.height = height
+
 		self.i2c_device = i2c_device(addr, port)
 		self.i2c_device.backlightOn()
 		self.i2c_device.write(0x03)
@@ -48,7 +51,7 @@ class lcd:
 		self.i2c_device.write(0x02)
 		self.strobe()
 
-		self.write(CMD_4BIT_2L)
+		self.write(CMD_4BIT_2L if height > 1 else CMD_4BIT_1L)
 		self.write(CMD_CLEAR)
 		self.write(CMD_ENTRY_R)
 		self.write(CMD_DISP_ON)
@@ -89,11 +92,16 @@ class lcd:
 		self.write(CMD_HOME)
 
 	# add custom characters (0 - 7)
-	def load_custom_chars(self, fontdata):
-		self.write(CMD_CGRAM_ADDR)
+	def load_custom_chars(self, fontdata, firstchar=0):
+		self.write(CMD_CGRAM_ADDR | (firstchar * 8))
 		for char in fontdata:
 			for line in char:
 				self.write_char(line)
+
+	def load_custom_char(self, char, number):
+		self.write(CMD_CGRAM_ADDR | (number * 8))
+		for line in char:
+			self.write_char(line)
 
 	# set write address to coordinates where (0,0) is the top left edge
 	def write_address(self, x, y):
